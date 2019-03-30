@@ -9,21 +9,32 @@ const { height, width } = canvas.parentElement.getBoundingClientRect()
 canvas.width = width 
 canvas.height = height 
 
-// ball instance
-let ball = {
-	x: 200,
-	y: 200,
-	r: 10,
-	vx: 5,
-	vy: 5,
-	color: 'red',
-	draw: function(){
-		ctx.beginPath()
-		ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI)
-		ctx.fillStyle = this.color
-		ctx.fill()
+ctx.fillStyle = '#222'
+
+canvas.ctx = ctx 
+
+class Ball{
+	constructor(canvas){
+		this.x = 200
+		this.y = 200
+		this.m = 10
+		this.dx = 10 
+		this.dy = 10 
+	}
+
+	get radius(){
+		return this.m 
+	}
+
+	draw(){
+		canvas.ctx.beginPath()
+		canvas.ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI)
+		canvas.ctx.fill()
 	}
 }
+
+// ball instance
+let ball = new Ball()
 
 // render
 let frame; 
