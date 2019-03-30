@@ -35,10 +35,19 @@ function render(){
 	ball.x += ball.vx 
 	ball.y += ball.vy 
 
+	if(ball.x + ball.vx > canvas.width || ball.x + ball.vx < 0){
+		ball.vx = -ball.vx 
+	}
+
+	if(ball.y + ball.vy > canvas.height || ball.y + ball.vy < 0){
+		ball.vy = -ball.vy 
+	}
+
 	frame = window.requestAnimationFrame(render)
 }
 
-// start on click 
+// start on click
+// accelerate on subsequent clicks 
 document.addEventListener('click', e => {
 	e.preventDefault()	
 	frame = window.requestAnimationFrame(render)
