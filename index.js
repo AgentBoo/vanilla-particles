@@ -34,7 +34,7 @@ class Ball{
 }
 
 // ball instance
-let ball = new Ball()
+let ball = new Ball(canvas)
 
 // render
 let frame; 
@@ -43,15 +43,15 @@ function render(){
 	ctx.clearRect(0, 0, canvas.width, canvas.height)
 	ball.draw()
 
-	ball.x += ball.vx 
-	ball.y += ball.vy 
+	ball.x += ball.dx 
+	ball.y += ball.dy 
 
-	if(ball.x + ball.vx > canvas.width || ball.x + ball.vx < 0){
-		ball.vx = -ball.vx 
+	if(ball.x + ball.dx > canvas.width || ball.x + ball.dx < 0){
+		ball.dx = -ball.dx 
 	}
 
-	if(ball.y + ball.vy > canvas.height || ball.y + ball.vy < 0){
-		ball.vy = -ball.vy 
+	if(ball.y + ball.dy > canvas.height || ball.y + ball.dy < 0){
+		ball.dy = -ball.dy 
 	}
 
 	frame = window.requestAnimationFrame(render)
