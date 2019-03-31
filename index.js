@@ -65,8 +65,27 @@ function render(){
 	ctx.clearRect(0, 0, canvas.width, canvas.height)
 
 	for(let i = 0; i < balls.length; i++){
-		balls[i].draw()
-		balls[i].displace()
+		let particle = balls[i]
+		
+		particle.draw()
+		particle.displace()
+
+		for(let j = i+1; j < balls.length; j++){
+			let neighbour = balls[j]
+
+			let dx = particle.x - neighbour.x 
+			let dy = particle.y - neighbour.y 
+			let ds = Math.sqrt(dx*dx + dy*dy)
+
+			if(ds < particle.radius + neighbour.radius){
+				particle.dx = -particle.dx
+				particle.dy = -particle.dy  
+				neighbour.dx = -neighbour.dx
+				neighbour.dy = -neighbour.dy 
+
+				balls.push(new Ball(canvas))  
+			} 
+		}
 	}
 
 	frame = window.requestAnimationFrame(render)
