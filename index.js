@@ -30,23 +30,23 @@ class Particles {
 		this.canvas = canvas;
 		this.particles = [];
 
-		this.started = false
+		this.started = false;
 		this.running = false;
 		this.frameId = null;
 	}
 
 	start() {
-		if(!this.started){
-			this.started = true
-			this.seed(2)
+		if (!this.started) {
+			this.started = true;
+			this.seed(20);
 		}
 
-		this.running = true
+		this.running = true;
 		this.render();
 	}
 
 	stop() {
-		this.running = false 
+		this.running = false;
 	}
 
 	seed(N) {
@@ -56,10 +56,10 @@ class Particles {
 	}
 
 	render() {
-		if(!this.running){
-			return 
+		if (!this.running) {
+			return;
 		}
-		
+
 		this.canvas.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
 		for (let i = 0; i < this.particles.length; i++) {
@@ -69,7 +69,7 @@ class Particles {
 
 		// set correct context for `this`
 		// https://stackoverflow.com/a/34930859
-		this.frameId = window.requestAnimationFrame(() => this.render());
+		this.frameId = window.requestAnimationFrame((timestamp) => this.render());
 	}
 }
 
@@ -90,32 +90,25 @@ class Dot {
 
 class Ball {
 	constructor(canvas, init) {
-		this.m = 4; // mass
+		this.canvas = canvas;
+
+		this.m = 4; // mass; the heavier the ball, the larger the radius
 		this.x = init.x || Math.random() * (canvas.width - 40) + 20; // position X
 		this.y = init.y || Math.random() * (canvas.height - 40) + 20; // position Y
 		this.vx = init.vx || Math.random() * 0.4 + 0.2; // velocity X
 		this.vy = init.vy || Math.random() * 0.4 + 0.2; // velocity Y
 
 		this.growth = {
-			enabled: false,
+			enabled: true,
 			radius: 0.1,
 			rate: 1 / this.m,
 			factor: 20
 		};
-
-		this.canvas = canvas;
 	}
 
 	get radius() {
-		// the heavier the ball, the larger the radius
-
 		if (this.growth.enabled) {
-			if (this.growth.radius >= this.m) {
-				this.growth.enabled = false;
-			} else {
-				this.growth.radius += this.growth.rate / this.growth.factor;
-			}
-			return this.growth.radius;
+			return this.grow();
 		} else {
 			return this.m;
 		}
@@ -139,6 +132,16 @@ class Ball {
 		);
 	}
 
+	grow() {
+		if (this.growth.radius >= this.m) {
+			this.growth.enabled = false;
+		} else {
+			this.growth.radius += this.growth.rate / this.growth.factor;
+		}
+
+		return this.growth.radius;
+	}
+
 	draw() {
 		this.canvas.ctx.beginPath();
 		this.canvas.ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
@@ -158,7 +161,6 @@ class Ball {
 		this.y += this.vy;
 	}
 }
-
 
 /* __main__ */
 
