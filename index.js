@@ -25,6 +25,21 @@ function configure(canvasId) {
 	return canvas;
 }
 
+function distance(objA, objB) {
+	return Math.sqrt(sqdistance(objA, objB));
+}
+
+function sqdistance(objA, objB) {
+	const dx = objA.x - objB.x;
+	const dy = objA.y - objB.y;
+	return dx * dx + dy * dy;
+}
+
+function gforce(objA, objB) {
+	// 2 is an arbitrary constant
+	return (2 * (objA.m * objB.m)) / sqdistance(objA, objB);
+}
+
 class Particles {
 	constructor(canvas) {
 		this.canvas = canvas;
@@ -34,18 +49,21 @@ class Particles {
 		this.running = false;
 		this.frameId = null;
 
-		this.registerCreate()
+		this.registerCreate();
 	}
 
-	registerCreate(){
-		document.addEventListener('click', event => {
-			if(this.particles.length < 50){
-				this.particles.push(new Ball(this.canvas, { 
-					x: event.pageX,
-					y: event.pageY,
-				}));
+	registerCreate() {
+		document.addEventListener("click", event => {
+			if (this.particles.length < 50) {
+				this.particles.push(
+					new Ball(this.canvas, {
+						x: event.pageX,
+						y: event.pageY,
+						vy: Math.random() * -3 - 1.2
+					})
+				);
 			}
-		})
+		});
 	}
 
 	start() {
@@ -73,16 +91,42 @@ class Particles {
 			return;
 		}
 
-		this.canvas.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+		const { ctx } = this.canvas;
+
+		ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
 		for (let i = 0; i < this.particles.length; i++) {
 			this.particles[i].draw();
 			this.particles[i].displace();
 		}
 
+		for (let i = 0; i < this.particles.length - 1; i++) {
+			for (let j = 1 + i; j < this.particles.length; j++) {
+				let particle = this.particles[i];
+				let neighbor = this.particles[j];
+
+				let reach = sqdistance(particle, neighbor);
+
+				// connect everyone with everyone 
+				// opacity changes for all lines at once
+				let force;
+				
+				if (reach < 100) {
+					force = gforce(particle, neighbor);
+				}
+
+				let opacity = force > 1 ? 1 : force;
+				ctx.strokeStyle = `rgba(0,0,0, ${opacity})`;
+				ctx.beginPath();
+				ctx.moveTo(neighbor.x, neighbor.y);
+				ctx.lineTo(particle.x, particle.y);
+				ctx.stroke();
+			}
+		}
+
 		// set correct context for `this`
 		// https://stackoverflow.com/a/34930859
-		this.frameId = window.requestAnimationFrame((timestamp) => this.render());
+		this.frameId = window.requestAnimationFrame(timestamp => this.render());
 	}
 }
 
@@ -108,8 +152,8 @@ class Ball {
 		this.m = 4; // mass; the heavier the ball, the larger the radius
 		this.x = init.x || Math.random() * (canvas.width - 40) + 20; // position X
 		this.y = init.y || Math.random() * (canvas.height - 40) + 20; // position Y
-		this.vx = init.vx || Math.random() * 0.4 + 0.2; // velocity X
-		this.vy = init.vy || Math.random() * 0.4 + 0.2; // velocity Y
+		this.vx = init.vx || Math.random() * 0.8 - 0.2; // velocity X
+		this.vy = init.vy || Math.random() * 0.8 - 0.2; // velocity Y
 
 		this.growth = {
 			enabled: init.growth,
@@ -182,7 +226,7 @@ let simulation = new Particles(canvas);
 
 simulation.start();
 
-let button = document.getElementById('controlBtn')
+let button = document.getElementById("controlBtn");
 
 button.addEventListener("click", event => {
 	event.preventDefault();
