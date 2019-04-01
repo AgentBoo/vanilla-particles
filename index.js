@@ -30,16 +30,24 @@ class Particles {
 		this.canvas = canvas;
 		this.particles = [];
 
+		this.started = false
 		this.running = false;
 		this.frameId = null;
 	}
 
 	start() {
-		this.seed(10);
+		if(!this.started){
+			this.started = true
+			this.seed(2)
+		}
+
+		this.running = true
 		this.render();
 	}
 
-	stop() {}
+	stop() {
+		this.running = false 
+	}
 
 	seed(N) {
 		for (let i = 0; i < N; i++) {
@@ -48,6 +56,10 @@ class Particles {
 	}
 
 	render() {
+		if(!this.running){
+			return 
+		}
+		
 		this.canvas.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
 		for (let i = 0; i < this.particles.length; i++) {
@@ -55,7 +67,9 @@ class Particles {
 			this.particles[i].displace();
 		}
 
-		this.frameId = window.requestAnimationFrame(this.render);
+		// set correct context for `this`
+		// https://stackoverflow.com/a/34930859
+		this.frameId = window.requestAnimationFrame(() => this.render());
 	}
 }
 
@@ -144,6 +158,7 @@ class Ball {
 		this.y += this.vy;
 	}
 }
+
 
 /* __main__ */
 
