@@ -33,6 +33,19 @@ class Particles {
 		this.started = false;
 		this.running = false;
 		this.frameId = null;
+
+		this.registerCreate()
+	}
+
+	registerCreate(){
+		document.addEventListener('click', event => {
+			if(this.particles.length < 50){
+				this.particles.push(new Ball(this.canvas, { 
+					x: event.pageX,
+					y: event.pageY,
+				}));
+			}
+		})
 	}
 
 	start() {
@@ -99,7 +112,7 @@ class Ball {
 		this.vy = init.vy || Math.random() * 0.4 + 0.2; // velocity Y
 
 		this.growth = {
-			enabled: true,
+			enabled: init.growth,
 			radius: 0.1,
 			rate: 1 / this.m,
 			factor: 20
@@ -169,7 +182,9 @@ let simulation = new Particles(canvas);
 
 simulation.start();
 
-document.addEventListener("click", event => {
+let button = document.getElementById('controlBtn')
+
+button.addEventListener("click", event => {
 	event.preventDefault();
 
 	if (simulation.running) {
