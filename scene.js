@@ -1,11 +1,14 @@
 import { Particle } from "./particle.js";
 import { noop, gravitation } from "./utils.js";
 
+const maxFPS = 60;
+const timestep = 1000 / maxFPS;
+
 const seedcount = 50;
 const seedmax = seedcount * 2;
 
 export class Scene {
-	constructor(canvas, observer) {
+	constructor(canvas, observer, monitor) {
 		this.canvas = canvas;
 		this.ctx = canvas.getContext("2d");
 
@@ -13,8 +16,12 @@ export class Scene {
 
 		this.started = false;
 		this.running = false;
-		this.frameId = null;
-
+		this.frameID = null;
+		this.dt = 0 
+		this.lastFrameTimeMs = 0
+		this.frameCount = 0
+		this.fps = 0
+		this.monitor = monitor
 		this.observer = observer;
 		this.addListeners();
 	}
@@ -23,10 +30,10 @@ export class Scene {
 		this.canvas.addEventListener("click", event => {
 			event.preventDefault();
 
-			if (!this.running){
-				return 
+			if (!this.running) {
+				return;
 			}
-			
+
 			if (this.particles.length <= seedmax) {
 				this.particles.push(
 					new Particle(this, {
@@ -78,12 +85,16 @@ export class Scene {
 			this.observer.innerHTML = this.particles.length;
 		}
 
+		// I don't really care about drawing the very first
+		// frame before any displacement updates occur
+
 		this.running = true;
 		this.render();
 	}
 
 	stop() {
 		this.running = false;
+		window.cancelAnimationFrame(this.frameID);
 	}
 
 	seed(quantity) {
@@ -101,7 +112,7 @@ export class Scene {
 		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 	}
 
-	drawParticles() {
+	paintFrames() {
 		for (let i = 0; i < this.particles.length; i++) {
 			this.particles[i].displace();
 			this.particles[i].draw();
@@ -127,17 +138,26 @@ export class Scene {
 		}
 	}
 
-	render() {
+	render(now) {
 		if (!this.running) {
 			return;
 		}
 
+		// TODO: FPS limit logic
+		// http://isaacsukin.com/news/2015/01/detailed-explanation-javascript-game-loops-and-timing
+
+		let delta = this.dt 
+		delta = (now - this.lastFrameTimeMs)/1000 
+		this.lastFrameTimeMs = now
+
+		this.fps = Math.round(1/delta)
+
 		this.clearCanvas();
 		this.handleInteractions();
-		this.drawParticles();
+		this.paintFrames();
 
 		// set correct context for `this`
 		// https://stackoverflow.com/a/34930859
-		this.frameId = window.requestAnimationFrame(timestamp => this.render());
+		this.frameID = window.requestAnimationFrame(timestamp => this.render(timestamp));
 	}
 }

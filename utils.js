@@ -1,6 +1,6 @@
 export const GCONST = 66.74; // gravitational constant (guess-check-revised number)
-export const KCONST = 0.001; // spring constant
-export const DAMPING = 0.95;
+export const KCONST = 0.0001; // spring constant
+export const DAMPING = 0.98;
 
 export function noop() {
 	return {};

@@ -22,15 +22,13 @@ function configure(canvasId) {
 }
 
 /* __main__ */
-
+let monitor = document.getElementById("monitor")
 let observer = document.getElementById("observer");
 let button = document.getElementById("controlBtn");
 let reset = document.getElementById("resetBtn");
 
 let canvas = configure("canvas");
-let simulation = new Scene(canvas, observer);
-
-simulation.start();
+let simulation = new Scene(canvas, observer, monitor);
 
 button.addEventListener("click", event => {
 	event.preventDefault();
@@ -48,3 +46,9 @@ reset.addEventListener("click", event => {
 	simulation.particles = [];
 	observer.innerHTML = simulation.particles.length;
 });
+
+setInterval(() => {
+	monitor.innerHTML = `${performance.now()} ${simulation.fps} fps` 
+}, 500)
+
+simulation.start();
